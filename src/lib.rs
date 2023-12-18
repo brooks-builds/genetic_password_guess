@@ -1,6 +1,6 @@
 use eyre::{bail, Result};
 use rand::{
-    distributions::{Alphanumeric, DistString},
+    distributions::{Alphanumeric, DistString, Uniform},
     seq::SliceRandom,
     thread_rng, Rng,
 };
@@ -69,6 +69,43 @@ pub fn crossover(chromosone_one: &str, chromosone_two: &str) -> String {
         &chromosone_one[0..length],
         &chromosone_two[length..]
     )
+}
+
+pub fn create_population(size: usize, chromosone_size: usize) -> Vec<String> {
+    let mut population = vec![];
+    for _ in 0..size {
+        population.push(create_chromosome(chromosone_size));
+    }
+
+    population
+}
+
+pub fn generation(
+    mut population: Vec<String>,
+    graded_retain_percent: f32,
+    nongraded_retain_percent: f32,
+    answer: &str,
+) -> Vec<String> {
+    let mut survivors = selection(
+        &mut population,
+        graded_retain_percent,
+        nongraded_retain_percent,
+        answer,
+    );
+    let mut children = vec![];
+    let mut rng = thread_rng();
+
+    while (children.len() + survivors.len()) < population.len() {
+        let parent_1 = survivors.choose(&mut rng).unwrap();
+        let parent_2 = survivors.choose(&mut rng).unwrap();
+        let mut child = crossover(parent_1, &parent_2);
+        child = mutate(&child);
+        children.push(child);
+    }
+
+    survivors.extend(children);
+
+    survivors
 }
 
 #[cfg(test)]
@@ -157,5 +194,13 @@ mod tests {
         assert_ne!(chromosone, mutated);
 
         assert_eq!(a_count, expected);
+    }
+
+    #[test]
+    fn should_create_a_population() {
+        let population = create_population(10, 8);
+
+        assert_eq!(population.len(), 10);
+        assert_eq!(population[0].len(), 8);
     }
 }
