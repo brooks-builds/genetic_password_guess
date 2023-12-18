@@ -51,6 +51,16 @@ pub fn selection(
     selected
 }
 
+pub fn crossover(chromosone_one: &str, chromosone_two: &str) -> String {
+    let length = chromosone_one.len() / 2;
+
+    format!(
+        "{}{}",
+        &chromosone_one[0..length],
+        &chromosone_two[length..]
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -117,5 +127,15 @@ mod tests {
         selected.sort();
         selected.dedup();
         assert_eq!(selected.len(), expected_length);
+    }
+
+    #[test]
+    fn should_crossover_two_chromosomes() {
+        let chromosome_one = "AAAAAAAA";
+        let chromosome_two = "BBBBBBBB";
+        let result = crossover(chromosome_one, chromosome_two);
+        let expected_result = "AAAABBBB";
+
+        assert_eq!(result, *expected_result);
     }
 }
