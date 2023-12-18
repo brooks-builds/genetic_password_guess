@@ -1,6 +1,6 @@
 use eyre::{bail, Result};
 use rand::{
-    distributions::{Alphanumeric, DistString, Uniform},
+    distributions::{Alphanumeric, DistString},
     seq::SliceRandom,
     thread_rng, Rng,
 };
@@ -38,7 +38,7 @@ pub fn selection(
     });
     let keep_count = (chromosomes.len() as f32 * graded_retain_percent) as usize;
     let keep_ungraded_count = (chromosomes.len() as f32 * nongraded_retain_percent) as usize;
-    let mut selected = chromosomes[0..keep_count].to_vec();
+    let selected = chromosomes[0..keep_count].to_vec();
     let mut rng = thread_rng();
 
     let nongraded_selected = chromosomes[keep_count..]
@@ -49,6 +49,16 @@ pub fn selection(
     let selected = [selected, nongraded_selected].concat();
 
     selected
+}
+
+pub fn mutate(chromosone: &str) -> String {
+    let mut rng = thread_rng();
+    let random_character = rng.sample(Alphanumeric) as char;
+    let index = rng.gen_range(0..chromosone.len());
+    let mut characters = chromosone.chars().collect::<Vec<char>>();
+
+    characters[index] = random_character;
+    characters.into_iter().collect()
 }
 
 pub fn crossover(chromosone_one: &str, chromosone_two: &str) -> String {
@@ -88,7 +98,6 @@ mod tests {
 
     #[test]
     fn should_select_chromosomes() {
-        let mut chromosome_size = 8;
         let mut chromosomes = vec![
             "afuuwtss".to_owned(),
             "afuuwtsz".to_owned(),
@@ -130,12 +139,23 @@ mod tests {
     }
 
     #[test]
-    fn should_crossover_two_chromosomes() {
-        let chromosome_one = "AAAAAAAA";
-        let chromosome_two = "BBBBBBBB";
-        let result = crossover(chromosome_one, chromosome_two);
+    fn should_crossover_two_chromosones() {
+        let chromosone_one = "AAAAAAAA";
+        let chromosone_two = "BBBBBBBB";
+        let result = crossover(chromosone_one, chromosone_two);
         let expected_result = "AAAABBBB";
 
         assert_eq!(result, *expected_result);
+    }
+
+    #[test]
+    fn should_mutate_chromosone() {
+        let chromosone = "aaaaaa";
+        let mutated = mutate(chromosone);
+        let a_count = mutated.matches('a').count();
+        let expected = 5;
+        assert_ne!(chromosone, mutated);
+
+        assert_eq!(a_count, expected);
     }
 }
