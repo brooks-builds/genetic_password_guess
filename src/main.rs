@@ -14,6 +14,7 @@ fn main() {
     let mut answers: Vec<String> = vec![];
     let graded_retain_percent = 0.3;
     let nongraded_retain_percent = 0.2;
+    let mut generations = 1;
 
     while answers.is_empty() {
         population = generation(
@@ -33,7 +34,9 @@ fn main() {
                 answers.push(individual.to_owned());
             }
         }
+
+        generations += 1;
     }
 
-    println!("We found the answer!: {answers:?}");
+    println!("We found the answer {answers:?} in {generations} generations");
 }

@@ -99,7 +99,10 @@ pub fn generation(
         let parent_1 = survivors.choose(&mut rng).unwrap();
         let parent_2 = survivors.choose(&mut rng).unwrap();
         let mut child = crossover(parent_1, &parent_2);
-        child = mutate(&child);
+        let mutate_chance = rng.gen_range(0..1000);
+        if mutate_chance <= 1 {
+            child = mutate(&child);
+        }
         children.push(child);
     }
 
